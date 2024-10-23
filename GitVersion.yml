@@ -5,7 +5,7 @@ commit-message-incrementing: Enabled
 major-version-bump-message: "^BREAKING CHANGE:"
 minor-version-bump-message: "^(feature:|feat:)"
 patch-version-bump-message: "^(fix:|bugfix:|hotfix:|patch:)"
-no-bump-message: "^skip:"
+no-bump-message: "^skip:|^chore:|^docs:|^style:|^refactor:|^perf:|^test:|^ci:|^build:|^revert:|^Merge branch"
 commit-date-format: "yyyyMMdd"
 merge-message-formats: {}
 strategies:
@@ -16,7 +16,7 @@ branches:
     label: ""
     track-merge-target: false
     track-merge-message: true
-    regex: ^feature-add-cicd$
+    regex: ^feature*$
     source-branches: []
     is-source-branch-for: []
     tracks-release-branches: false
