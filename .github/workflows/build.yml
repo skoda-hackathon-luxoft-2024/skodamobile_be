@@ -98,7 +98,9 @@ jobs:
 
       - name: SSH into Server and Update Docker-Compose
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             sed -i "s|image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:.*|image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }}|" /home/${{ secrets.SERVER_USER }}/docker-compose.yml
             cd $(dirname ${{ env.DOCKER_COMPOSE_PATH }})
             echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_LOGIN_SERVER }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
