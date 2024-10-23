@@ -104,6 +104,7 @@ jobs:
 
       - name: Add SSH Key
         run: |
+          eval $(ssh-agent -s)
           echo "${{ env.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
