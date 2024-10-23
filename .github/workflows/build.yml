@@ -16,7 +16,7 @@ jobs:
     name: Calculate Version
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.gitversion.outputs.version }}
+      version: ${{ steps.version.outputs.VERSION }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,7 +34,6 @@ jobs:
         id: gitversion
         with:
           useConfigFile: true
-          configFilePath: GitVersion.yml
 
       - name: Set Version Output
         id: version
