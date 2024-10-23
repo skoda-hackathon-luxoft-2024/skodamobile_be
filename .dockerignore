@@ -1,0 +1,10 @@
+.github
+Dockerfile
+docker-compose.yml
+GitVersion.yml
+.gitignore
+.git
+.gitattributes
+.gitmodules
+.gitkeep
+.gitlab-ci.yml

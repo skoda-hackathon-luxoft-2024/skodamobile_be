@@ -26,7 +26,6 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v3.0.0
         with:
-          useConfigFile: true
           versionSpec: "6.x"
 
       - name: Determine Version
@@ -65,7 +64,11 @@ jobs:
 
       - name: Build and Tag Docker Image
         run: |
-          docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }} .
+          docker build \
+          --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+          --build-arg VCS_REF=$(git rev-parse --short HEAD) \
+          --build-arg VERSION=${{ env.VERSION }} \
+          -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }} .
           docker tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:latest
 
       - name: Push Docker Image
