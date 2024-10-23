@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
                     savedUser.extendLicenses(linkedLicenses);
                     vehicleRepository.save(savedUser);
 
-                    log.info("saved {}", user);
+                    log.debug("saved {}", user);
 
                     return new AuthResponseDto(token);
                 });

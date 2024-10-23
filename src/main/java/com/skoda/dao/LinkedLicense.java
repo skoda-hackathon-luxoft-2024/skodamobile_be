@@ -35,6 +35,10 @@ public class LinkedLicense {
     @Builder.Default
     @ToString.Exclude
     private AtomicInteger subscriptionRenewalAttempts = new AtomicInteger(0);
+//    private Set<Instant> subscriptionRenewalAttempts = new TreeSet<>(Comparator.reverseOrder());
+//    public void addSubscriptionRenewalAttempt(Instant attempt) {
+//        subscriptionRenewalAttempts.add(attempt);
+//    }
 
     public int incrementAndGet() {
         return subscriptionRenewalAttempts.incrementAndGet();

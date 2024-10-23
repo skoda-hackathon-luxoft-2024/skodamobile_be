@@ -26,7 +26,7 @@ public class JwtTokenProvider {
                 .issuedAt(new Date())
                 .signWith(key())
                 .compact();
-        log.info("Generated token: {}", token);
+        log.debug("For User: {}, generated token: {}", username, token);
         return token;
     }
 

@@ -16,17 +16,15 @@ public class LicenceDetailDto {
 
     private String name;
 
-    private BigDecimal price;
-
     private String description;
+
+    private String summary;
+
+    private String impactOfExpiredLicense;
+
+    private BigDecimal price;
 
     private Integer subscriptionPeriod;
 
     private LicenceType licenceType;
-
-    private String field1;
-
-    private String field2;
-
-    private String field3;
 }

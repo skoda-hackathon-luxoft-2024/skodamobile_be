@@ -21,6 +21,12 @@ public class LinkedLicenceDto {
 
     private String name;
 
+    private String description;
+
+    private String summary;
+
+    private String impactOfExpiredLicense;
+
     private BigDecimal fullPrice;
 
     private String vin;

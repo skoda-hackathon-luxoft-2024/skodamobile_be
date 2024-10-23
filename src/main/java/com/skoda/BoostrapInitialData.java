@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -51,12 +50,12 @@ public class BoostrapInitialData implements CommandLineRunner {
     private static final String REMOTE_ACCESS = "Remote Access";
     private static final String TRAFFICATION = "Traffication";
 
-    private static final int[] numbers = {11, 51, 101};
+    private static final int[] numbers = {0, 11, 51, 101};
 
     @Override
     public void run(String... args) {
-        List<LicenseDetail> licenses = dummyLicenseDetail();
-        dummyApplications(licenses);
+        dummyLicenseDetail();
+        dummyApplications();
 
         // one Vehicles linked to two mobiles
         AuthResponseDto vehicleToken1 = authService.loginVehicle("VIN1");
@@ -85,14 +84,10 @@ public class BoostrapInitialData implements CommandLineRunner {
 
 
     private void dummySpecialOffer() {
-        linkedLicenseRepository.findAll().forEach(linked -> {
-            if (linked.discountPercent() == 0) {
-                int range = rand();
-                log.info("range {}", range);
-                IntStream.range(0, range).forEach(i -> licensesService
-                        .postponeSubscriptionRenewal("Bearer " + linked.getVehicle().getToken(), linked.getLicence().getId().toHexString()));
-            }
-        });
+        linkedLicenseRepository.findAll().stream()
+                .filter(linked -> linked.discountPercent() == 0)
+                .forEach(linked -> IntStream.range(0, rand()).forEach(i -> licensesService
+                        .postponeSubscriptionRenewal("Bearer " + linked.getVehicle().getToken(), linked.getLicence().getId().toHexString())));
     }
 
     /*
@@ -100,46 +95,58 @@ public class BoostrapInitialData implements CommandLineRunner {
     b. Remote Access – one year
     c. Online data for Travel Assist, Media Streaming, Online data for Intelligent Speed Assist, Traffication
     */
-    private List<LicenseDetail> dummyLicenseDetail() {
-        List<String> names = List.of(INFOTAINMENT_ONLINE, REMOTE_ACCESS, TRAFFICATION);
-
-        List<LicenseDetail> licenseDetails = new ArrayList<>(licenseRepository.findAllByNameIn(names));
-
-        if (licenseDetails.isEmpty()) {
-            names.forEach(name -> licenseDetails.add(LicenseDetail.builder()
-                    .name(name)
-                    .price(generateRandomBigDecimal())
-                    .subscriptionPeriod(12)
-                    .licenceType(LicenceType.PAID)
-                    .description(RandomStringUtils.randomAlphanumeric(15))
-                    .field1(RandomStringUtils.randomAlphanumeric(15))
-                    .field2(RandomStringUtils.randomAlphanumeric(15))
-                    .field3(RandomStringUtils.randomAlphanumeric(15))
-                    .build()));
-
+    private void dummyLicenseDetail() {
+        if (licenseRepository.findAll().isEmpty()) {
+            List<LicenseDetail> licenseDetails = List.of(
+                    LicenseDetail.builder()
+                            .name(TRAFFICATION)
+                            .description("The Traffication app provides drivers with real-time updates on traffic conditions to help them avoid congestion and potentially dangerous road situations. The system alerts users to road hazards, accidents, or construction, ensuring a safer and more efficient driving experience.")
+                            .summary("Real-time traffic updates and road hazard alerts for a safer driving experience.")
+                            .impactOfExpiredLicense("Without an active license for Traffication, you will lose access to important traffic alerts and road hazard notifications, potentially increasing travel time and exposing you to unsafe conditions.")
+                            .price(generateRandomBigDecimal())
+                            .subscriptionPeriod(12)
+                            .licenceType(LicenceType.PAID)
+                            .build(),
+                    LicenseDetail.builder()
+                            .name(REMOTE_ACCESS)
+                            .description("Remote Access allows Skoda owners to control certain aspects of their vehicle from their smartphone. Users can remotely check vehicle status (fuel levels, battery charge), lock/unlock doors, turn on the air conditioning, and track the car’s location, providing convenience and peace of mind.")
+                            .summary("Remote control of vehicle status, doors, and location from a smartphone.")
+                            .impactOfExpiredLicense("If the license expires, you will no longer be able to remotely monitor your vehicle’s status or control key functions, leading to decreased convenience and potential security concerns.")
+                            .price(generateRandomBigDecimal())
+                            .subscriptionPeriod(12)
+                            .licenceType(LicenceType.PAID)
+                            .build(),
+                    LicenseDetail.builder()
+                            .name(INFOTAINMENT_ONLINE)
+                            .description("Infotainment Online provides access to a variety of online services directly through the vehicle’s multimedia system. Drivers can get real-time information on weather, news, parking availability, traffic conditions, and access various entertainment services during trips.")
+                            .summary("Real-time information and entertainment services integrated with the car’s multimedia system.")
+                            .impactOfExpiredLicense("Without an active subscription, you will lose access to essential real-time information such as traffic updates and parking availability, which could result in longer travel times or difficulties finding services en route.")
+                            .price(generateRandomBigDecimal())
+                            .subscriptionPeriod(12)
+                            .licenceType(LicenceType.PAID)
+                            .build());
             licenseRepository.saveAll(licenseDetails);
         }
-
-        return licenseDetails;
     }
 
-    private void dummyApplications(List<LicenseDetail> licenses) {
-        licenses.forEach(l -> {
-            if (l.getApplications().isEmpty()) {
-                List<Application> applications = IntStream.range(0, 5)
-                        .mapToObj(i -> Application.builder()
-                                .licence(l)
-                                .name(RandomStringUtils.randomAlphanumeric(10))
-                                .description(RandomStringUtils.randomAlphanumeric(30))
-                                .field1(RandomStringUtils.randomAlphanumeric(10))
-                                .field2(RandomStringUtils.randomAlphanumeric(10))
-                                .field3(RandomStringUtils.randomAlphanumeric(10))
-                                .build())
-                        .toList();
-                List<Application> saved = applicationRepository.saveAll(applications);
-                l.getApplications().addAll(saved);
-            }
-        });
+    private void dummyApplications() {
+        List<LicenseDetail> licenses = licenseRepository.findAll();
+        licenses.stream()
+                .filter(l -> l.getApplications().isEmpty())
+                .forEach(l -> {
+                    List<Application> applications = IntStream.range(0, 5)
+                            .mapToObj(i -> Application.builder()
+                                    .licence(l)
+                                    .name(RandomStringUtils.randomAlphanumeric(10))
+                                    .description(RandomStringUtils.randomAlphanumeric(30))
+                                    .field1(RandomStringUtils.randomAlphanumeric(10))
+                                    .field2(RandomStringUtils.randomAlphanumeric(10))
+                                    .field3(RandomStringUtils.randomAlphanumeric(10))
+                                    .build())
+                            .toList();
+                    List<Application> saved = applicationRepository.saveAll(applications);
+                    l.getApplications().addAll(saved);
+                });
         licenseRepository.saveAll(licenses);
     }
 
