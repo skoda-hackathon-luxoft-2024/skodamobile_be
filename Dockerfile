@@ -8,7 +8,7 @@ LABEL org.label-schema.name="skoda-hackathon-2024/api"
 LABEL org.label-schema.version=$BUILD_VERSION
 
 WORKDIR /app
-COPY ./target/spring-boot-react-3.3.4.jar /app/hackathon.jar
+COPY ./target/skoda-mobile-backend.jar /app/hackathon.jar
 
 EXPOSE 8080 80
 
