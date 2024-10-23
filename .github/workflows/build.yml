@@ -19,17 +19,22 @@ jobs:
       version: ${{ steps.gitversion.outputs.version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.14
+        uses: gittools/actions/gitversion/setup@v3.0.0
         with:
           useConfigFile: true
           versionSpec: "6.x"
 
-      - name: Determine version
+      - name: Determine Version
+        uses: gittools/actions/gitversion/execute@v3.0.0
         id: gitversion
-        run: echo "FullSemVer:\ ${{ steps.gitversion.outputs.fullsemver }}"
+        with:
+          useConfigFile: true
+          configFilePath: GitVersion.yml
 
       - name: Set Version Output
         id: version
