@@ -104,9 +104,10 @@ jobs:
 
       - name: Add SSH Key
         run: |
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+          echo "${{ env.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: SSH into Server and Update Docker-Compose
         run: |
