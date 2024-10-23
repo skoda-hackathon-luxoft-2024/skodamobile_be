@@ -1,0 +1,18 @@
+# binaries
+bin/
+dist/
+lib/
+build
+
+# editors
+*.swp
+.idea/
+.vs/
+.vscode/
+.DS_Store
+
+node_modules
+node
+package-lock.json
+yarn.lock
+.DS_Store

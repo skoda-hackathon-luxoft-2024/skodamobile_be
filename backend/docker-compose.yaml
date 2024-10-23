@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    networks:
+      - mongo-network
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_OPTIONS_EDITORTHEME: ambiance
+      ME_CONFIG_BASICAUTH_USERNAME: user
+      ME_CONFIG_BASICAUTH_PASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://user:password@mongodb:27017/?authSource=admin
+    networks:
+      - mongo-network
+
+  application:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=mongodb://user:password@mongodb:27017/skoda
+      - DB_USERNAME=user
+      - DB_PASSWORD=password
+      - WAIT_HOSTS=mongodb:27017
+    command: [ "java", "-jar", "/app/hackathon.jar", "--server.port=8080", "--spring.data.mongodb.host=mongodb" ]
+    networks:
+      - mongo-network
+    depends_on:
+      - mongodb
+
+networks:
+  mongo-network:
+    driver: bridge
