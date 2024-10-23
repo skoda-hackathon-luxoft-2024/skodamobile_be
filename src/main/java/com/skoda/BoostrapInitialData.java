@@ -20,11 +20,14 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -67,6 +70,7 @@ public class BoostrapInitialData implements CommandLineRunner {
         if (licenseDetails.isEmpty()) {
             names.forEach(name -> licenseDetails.add(LicenseDetail.builder()
                     .name(name)
+                    .price(generateRandomBigDecimal())
                     .subscriptionPeriod(12)
                     .licenceType(LicenceType.PAID)
                     .description(RandomStringUtils.randomAlphanumeric(15))
@@ -161,4 +165,14 @@ public class BoostrapInitialData implements CommandLineRunner {
 
         return linked;
     }
+
+    public static BigDecimal generateRandomBigDecimal() {
+        int min = 700;
+        int max = 1300;
+
+        int randomInt = ThreadLocalRandom.current().nextInt(min, max + 1);
+
+        return BigDecimal.valueOf(randomInt);
+    }
+
 }

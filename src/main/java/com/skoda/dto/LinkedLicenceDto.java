@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -18,6 +19,8 @@ public class LinkedLicenceDto {
     private String id;
 
     private String name;
+
+    private BigDecimal price;
 
     private String vin;
 

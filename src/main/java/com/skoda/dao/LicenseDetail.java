@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +26,9 @@ public class LicenseDetail {
     @Indexed(unique = true)
     @NonNull
     private String name;
+
+    @NonNull
+    private BigDecimal price;
 
     @Nullable
     private String description;

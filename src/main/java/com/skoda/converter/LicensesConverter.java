@@ -28,6 +28,7 @@ public interface LicensesConverter {
     @Mapping(target = "subscriptionPeriod", source = "licence.subscriptionPeriod")
     @Mapping(target = "licenceType", source = "licence.licenceType")
     @Mapping(target = "vin", source = "vehicle.username")
+    @Mapping(target = "price", source = "licence.price")
     LinkedLicenceDto toDto(LinkedLicense dao);
 
     @Mapping(target = "licence", source = "licence.id")
