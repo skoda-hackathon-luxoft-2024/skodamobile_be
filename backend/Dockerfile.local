@@ -1,7 +1,0 @@
-FROM maven:3.8.5-jdk-11 AS MAVEN_BUILD
-COPY . .
-RUN mvn clean package
-
-FROM openjdk:11-jre-slim
-COPY --from=MAVEN_BUILD /target/spring-boot-react-2.7.0.jar /hackathon.jar
-CMD ["java", "-jar", "/hackathon.jar", "--server.port=80"]
