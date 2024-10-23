@@ -48,6 +48,13 @@ public class LinkedLicenceDto {
     }
 
     @JsonGetter
+    public Instant nextPushNotification() {
+        ZonedDateTime zonedDateTime = Instant.now().atZone(ZoneId.systemDefault());
+        ZonedDateTime newDateTime = zonedDateTime.plusSeconds(30);
+        return newDateTime.toInstant();
+    }
+
+    @JsonGetter
     public Instant expirationDate() {
         if (purchaseDate != null) {
             ZonedDateTime zonedDateTime = purchaseDate.atZone(ZoneId.systemDefault());
