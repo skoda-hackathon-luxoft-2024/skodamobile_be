@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,7 +21,13 @@ public class LinkedLicenceDto {
 
     private String name;
 
-    private BigDecimal price;
+    private String description;
+
+    private String summary;
+
+    private String impactOfExpiredLicense;
+
+    private BigDecimal fullPrice;
 
     private String vin;
 
@@ -29,6 +36,23 @@ public class LinkedLicenceDto {
     private Integer subscriptionPeriod;
 
     private LicenceType licenceType;
+
+    private int discountPercent;
+
+    @JsonGetter
+    public BigDecimal discountPrice() {
+        BigDecimal percentage = BigDecimal.valueOf(discountPercent).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal amountToSubtract = fullPrice.multiply(percentage);
+        BigDecimal result = fullPrice.subtract(amountToSubtract);
+        return result.setScale(0, RoundingMode.HALF_UP);
+    }
+
+    @JsonGetter
+    public Instant nextPushNotification() {
+        ZonedDateTime zonedDateTime = Instant.now().atZone(ZoneId.systemDefault());
+        ZonedDateTime newDateTime = zonedDateTime.plusSeconds(30);
+        return newDateTime.toInstant();
+    }
 
     @JsonGetter
     public Instant expirationDate() {

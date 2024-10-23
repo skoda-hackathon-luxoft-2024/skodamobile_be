@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
                     savedUser.extendLicenses(linkedLicenses);
                     vehicleRepository.save(savedUser);
 
-                    log.info("saved {}", user);
+                    log.debug("saved {}", user);
 
                     return new AuthResponseDto(token);
                 });
@@ -96,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
                             .token(token)
                             .build();
                     Mobile saved = mobileRepository.save(user);
-                    log.info("saved: {}", saved);
+                    log.debug("saved: {}", saved);
 
                     return new AuthResponseDto(token);
                 });

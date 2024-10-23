@@ -5,14 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PersonalizedData {
-
-    private List<Instant> subscriptionRenewalAttempts;
+    private Integer discountPercent;
+    private Integer subscriptionRenewalAttempts;
 }

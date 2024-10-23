@@ -9,9 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Document(collection = "linked_licenses")
 @Data
@@ -36,13 +34,35 @@ public class LinkedLicense {
 
     @Builder.Default
     @ToString.Exclude
-    private Set<Instant> subscriptionRenewalAttempts = new TreeSet<>(Comparator.reverseOrder());
+    private AtomicInteger subscriptionRenewalAttempts = new AtomicInteger(0);
+//    private Set<Instant> subscriptionRenewalAttempts = new TreeSet<>(Comparator.reverseOrder());
+//    public void addSubscriptionRenewalAttempt(Instant attempt) {
+//        subscriptionRenewalAttempts.add(attempt);
+//    }
+
+    public int incrementAndGet() {
+        return subscriptionRenewalAttempts.incrementAndGet();
+    }
+
+    public int getSubscriptionRenewalAttempts() {
+        return subscriptionRenewalAttempts.get();
+    }
+
+    public int discountPercent() {
+        int discountPercent = 0;
+        if (getSubscriptionRenewalAttempts() > 10) {
+            discountPercent = 15;
+        }
+        if (getSubscriptionRenewalAttempts() > 50) {
+            discountPercent = 30;
+        }
+        if (getSubscriptionRenewalAttempts() > 100) {
+            discountPercent = 50;
+        }
+        return discountPercent;
+    }
 
     public String getId() {
         return licence.getId().toHexString();
-    }
-
-    public void addSubscriptionRenewalAttempt(Instant attempt) {
-        subscriptionRenewalAttempts.add(attempt);
     }
 }

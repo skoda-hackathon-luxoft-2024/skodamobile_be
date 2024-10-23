@@ -25,14 +25,19 @@ public interface LicensesConverter {
 
     @Mapping(target = "id", source = "licence.id")
     @Mapping(target = "name", source = "licence.name")
+    @Mapping(target = "description", source = "licence.description")
+    @Mapping(target = "summary", source = "licence.summary")
+    @Mapping(target = "impactOfExpiredLicense", source = "licence.impactOfExpiredLicense")
+    @Mapping(target = "fullPrice", source = "licence.price")
+    @Mapping(target = "vin", source = "vehicle.username")
     @Mapping(target = "subscriptionPeriod", source = "licence.subscriptionPeriod")
     @Mapping(target = "licenceType", source = "licence.licenceType")
-    @Mapping(target = "vin", source = "vehicle.username")
-    @Mapping(target = "price", source = "licence.price")
+    @Mapping(target = "discountPercent", expression = "java(dao.discountPercent())")
     LinkedLicenceDto toDto(LinkedLicense dao);
 
     @Mapping(target = "licence", source = "licence.id")
     ApplicationDto toDto(Application dao);
+
     List<ApplicationDto> toApplicationDtoList(List<Application> dao);
 
     List<LinkedLicenceDto> toLinkedLicenceDtoList(Collection<LinkedLicense> daos);

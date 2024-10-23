@@ -1,7 +1,6 @@
 package com.skoda.dao;
 
 import com.mongodb.lang.NonNull;
-import com.mongodb.lang.Nullable;
 import com.skoda.dto.LicenceType;
 import lombok.*;
 import org.bson.types.ObjectId;
@@ -28,10 +27,16 @@ public class LicenseDetail {
     private String name;
 
     @NonNull
-    private BigDecimal price;
-
-    @Nullable
     private String description;
+
+    @NonNull
+    private String summary;
+
+    @NonNull
+    private String impactOfExpiredLicense;
+
+    @NonNull
+    private BigDecimal price;
 
     @NonNull
     private Integer subscriptionPeriod;
@@ -45,12 +50,4 @@ public class LicenseDetail {
     @EqualsAndHashCode.Exclude
     private Set<Application> applications = new HashSet<>();
 
-    @Nullable
-    private String field1;
-
-    @Nullable
-    private String field2;
-
-    @Nullable
-    private String field3;
 }

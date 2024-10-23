@@ -13,6 +13,7 @@ import com.skoda.repository.LicenseRepository;
 import com.skoda.repository.LinkedLicenseRepository;
 import com.skoda.repository.VehicleRepository;
 import com.skoda.service.AuthService;
+import com.skoda.service.LicensesService;
 import com.skoda.service.ParingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,16 +44,50 @@ public class BoostrapInitialData implements CommandLineRunner {
     private final ParingService paringService;
     private final AuthService authService;
     private final ApplicationRepository applicationRepository;
+    private final LicensesService licensesService;
 
     private static final String INFOTAINMENT_ONLINE = "Infotainment Online";
     private static final String REMOTE_ACCESS = "Remote Access";
     private static final String TRAFFICATION = "Traffication";
 
+    private static final int[] numbers = {0, 11, 51, 101};
+
     @Override
     public void run(String... args) {
-        List<LinkedLicense> linkedLicenses = dummyLinkedLicense();
+        dummyLicenseDetail();
+        dummyApplications();
 
-        log.warn("Dummy linked: {}", linkedLicenses);
+        // one Vehicles linked to two mobiles
+        AuthResponseDto vehicleToken1 = authService.loginVehicle("VIN1");
+        ParingNumberDto pairingNumber1 = paringService.getNumberForPairing("Bearer " + vehicleToken1.getAccessToken());
+
+        AuthResponseDto mobileToken1 = authService.loginMobile(new LoginDto("user1", "password1"));
+        paringService.pairMobileWithVehicle("Bearer " + mobileToken1.getAccessToken(), pairingNumber1.getNumber());
+        AuthResponseDto mobileToken2 = authService.loginMobile(new LoginDto("user2", "password2"));
+        paringService.pairMobileWithVehicle("Bearer " + mobileToken2.getAccessToken(), pairingNumber1.getNumber());
+
+        // two Vehicles linked to one mobile
+        AuthResponseDto vehicleToken2 = authService.loginVehicle("VIN2");
+        ParingNumberDto pairingNumber2 = paringService.getNumberForPairing("Bearer " + vehicleToken2.getAccessToken());
+        AuthResponseDto vehicleToken3 = authService.loginVehicle("VIN3");
+        ParingNumberDto pairingNumber3 = paringService.getNumberForPairing("Bearer " + vehicleToken3.getAccessToken());
+
+        AuthResponseDto mobileToken3 = authService.loginMobile(new LoginDto("user3", "password3"));
+        paringService.pairMobileWithVehicle("Bearer " + mobileToken3.getAccessToken(), pairingNumber2.getNumber());
+        paringService.pairMobileWithVehicle("Bearer " + mobileToken3.getAccessToken(), pairingNumber3.getNumber());
+
+        dummyLinkedLicense();
+        dummySpecialOffer();
+
+        log.warn("Dummy linked: {}", linkedLicenseRepository.findAll());
+    }
+
+
+    private void dummySpecialOffer() {
+        linkedLicenseRepository.findAll().stream()
+                .filter(linked -> linked.discountPercent() == 0)
+                .forEach(linked -> IntStream.range(0, rand()).forEach(i -> licensesService
+                        .postponeSubscriptionRenewal("Bearer " + linked.getVehicle().getToken(), linked.getLicence().getId().toHexString())));
     }
 
     /*
@@ -62,96 +95,66 @@ public class BoostrapInitialData implements CommandLineRunner {
     b. Remote Access – one year
     c. Online data for Travel Assist, Media Streaming, Online data for Intelligent Speed Assist, Traffication
     */
-    private List<LicenseDetail> dummyLicenseDetail() {
-        List<String> names = List.of(INFOTAINMENT_ONLINE, REMOTE_ACCESS, TRAFFICATION);
-
-        List<LicenseDetail> licenseDetails = new ArrayList<>(licenseRepository.findAllByNameIn(names));
-
-        if (licenseDetails.isEmpty()) {
-            names.forEach(name -> licenseDetails.add(LicenseDetail.builder()
-                    .name(name)
-                    .price(generateRandomBigDecimal())
-                    .subscriptionPeriod(12)
-                    .licenceType(LicenceType.PAID)
-                    .description(RandomStringUtils.randomAlphanumeric(15))
-                    .field1(RandomStringUtils.randomAlphanumeric(15))
-                    .field2(RandomStringUtils.randomAlphanumeric(15))
-                    .field3(RandomStringUtils.randomAlphanumeric(15))
-                    .build()));
-
+    private void dummyLicenseDetail() {
+        if (licenseRepository.findAll().isEmpty()) {
+            List<LicenseDetail> licenseDetails = List.of(
+                    LicenseDetail.builder()
+                            .name(TRAFFICATION)
+                            .description("The Traffication app provides drivers with real-time updates on traffic conditions to help them avoid congestion and potentially dangerous road situations. The system alerts users to road hazards, accidents, or construction, ensuring a safer and more efficient driving experience.")
+                            .summary("Real-time traffic updates and road hazard alerts for a safer driving experience.")
+                            .impactOfExpiredLicense("Without an active license for Traffication, you will lose access to important traffic alerts and road hazard notifications, potentially increasing travel time and exposing you to unsafe conditions.")
+                            .price(generateRandomBigDecimal())
+                            .subscriptionPeriod(12)
+                            .licenceType(LicenceType.PAID)
+                            .build(),
+                    LicenseDetail.builder()
+                            .name(REMOTE_ACCESS)
+                            .description("Remote Access allows Skoda owners to control certain aspects of their vehicle from their smartphone. Users can remotely check vehicle status (fuel levels, battery charge), lock/unlock doors, turn on the air conditioning, and track the car’s location, providing convenience and peace of mind.")
+                            .summary("Remote control of vehicle status, doors, and location from a smartphone.")
+                            .impactOfExpiredLicense("If the license expires, you will no longer be able to remotely monitor your vehicle’s status or control key functions, leading to decreased convenience and potential security concerns.")
+                            .price(generateRandomBigDecimal())
+                            .subscriptionPeriod(12)
+                            .licenceType(LicenceType.PAID)
+                            .build(),
+                    LicenseDetail.builder()
+                            .name(INFOTAINMENT_ONLINE)
+                            .description("Infotainment Online provides access to a variety of online services directly through the vehicle’s multimedia system. Drivers can get real-time information on weather, news, parking availability, traffic conditions, and access various entertainment services during trips.")
+                            .summary("Real-time information and entertainment services integrated with the car’s multimedia system.")
+                            .impactOfExpiredLicense("Without an active subscription, you will lose access to essential real-time information such as traffic updates and parking availability, which could result in longer travel times or difficulties finding services en route.")
+                            .price(generateRandomBigDecimal())
+                            .subscriptionPeriod(12)
+                            .licenceType(LicenceType.PAID)
+                            .build());
             licenseRepository.saveAll(licenseDetails);
         }
-
-        return licenseDetails;
     }
 
-    private void dummyApplications(List<LicenseDetail> licenses) {
-        licenses.forEach(l -> {
-            if (l.getApplications().isEmpty()) {
-                List<Application> applications = IntStream.range(0, 5)
-                        .mapToObj(i -> Application.builder()
-                                .licence(l)
-                                .name(RandomStringUtils.randomAlphanumeric(10))
-                                .description(RandomStringUtils.randomAlphanumeric(30))
-                                .field1(RandomStringUtils.randomAlphanumeric(10))
-                                .field2(RandomStringUtils.randomAlphanumeric(10))
-                                .field3(RandomStringUtils.randomAlphanumeric(10))
-                                .build())
-                        .toList();
-                List<Application> saved = applicationRepository.saveAll(applications);
-                l.getApplications().addAll(saved);
-            }
-        });
+    private void dummyApplications() {
+        List<LicenseDetail> licenses = licenseRepository.findAll();
+        licenses.stream()
+                .filter(l -> l.getApplications().isEmpty())
+                .forEach(l -> {
+                    List<Application> applications = IntStream.range(0, 5)
+                            .mapToObj(i -> Application.builder()
+                                    .licence(l)
+                                    .name(RandomStringUtils.randomAlphanumeric(10))
+                                    .description(RandomStringUtils.randomAlphanumeric(30))
+                                    .field1(RandomStringUtils.randomAlphanumeric(10))
+                                    .field2(RandomStringUtils.randomAlphanumeric(10))
+                                    .field3(RandomStringUtils.randomAlphanumeric(10))
+                                    .build())
+                            .toList();
+                    List<Application> saved = applicationRepository.saveAll(applications);
+                    l.getApplications().addAll(saved);
+                });
         licenseRepository.saveAll(licenses);
     }
 
-    private List<LinkedLicense> dummyLinkedLicense() {
-        List<LicenseDetail> licenses = dummyLicenseDetail();
-        dummyApplications(licenses);
+    private void dummyLinkedLicense() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
 
-        log.debug("dummyLicenseDetail: {}", licenses);
-
-        AuthResponseDto vehicle = authService.loginVehicle("VIN");
-        AuthResponseDto mobile = authService.loginMobile(new LoginDto("user", "password"));
-
-        ParingNumberDto numberForPairing = paringService.getNumberForPairing("Bearer " + vehicle.getAccessToken());
-        paringService.pairMobileWithVehicle("Bearer " + mobile.getAccessToken(), numberForPairing.getNumber());
-
-        Vehicle device = vehicleRepository.findByUsername("VIN").orElseThrow();
-
-        List<LinkedLicense> linked = new ArrayList<>(device.getLinkedLicenses());
-
-        if (linked.isEmpty()) {
-            log.warn("Empty LinkedLicense");
-//            Map<String, LicenseDetail> licensesByName = licenses.stream()
-//                    .collect(toMap(LicenseDetail::getName, Function.identity()));
-//
-//            List<LinkedLicense> toSave = List.of(
-//                    LinkedLicense.builder()
-//                            .licence(licensesByName.get(INFOTAINMENT_ONLINE))
-//                            .device(device)
-//                            .purchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(11).minusDays(15).toInstant())
-//                            .build(),
-//                    LinkedLicense.builder()
-//                            .licence(licensesByName.get(REMOTE_ACCESS))
-//                            .device(device)
-//                            .purchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(16).toInstant())
-//                            .build(),
-//                    LinkedLicense.builder()
-//                            .licence(licensesByName.get(TRAFFICATION))
-//                            .device(device)
-//                            .purchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(6).toInstant())
-//                            .build()
-//            );
-//
-//            linked = linkedLicenseRepository.saveAll(toSave);
-//            device = iviRepository.findByUsername("VIN").orElseThrow();
-//            device.extendLicenses(linked);
-//            iviRepository.save(device);
-//
-//            return linked;
-        } else {
-            Map<String, LinkedLicense> licensesByName = linked.stream()
+        vehicles.forEach(vehicle -> {
+            Map<String, LinkedLicense> licensesByName = vehicle.getLinkedLicenses().stream()
                     .collect(toMap(e -> e.getLicence().getName(), Function.identity()));
             licensesByName.get(INFOTAINMENT_ONLINE)
                     .setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(11).minusDays(15).toInstant());
@@ -160,10 +163,13 @@ public class BoostrapInitialData implements CommandLineRunner {
             licensesByName.get(TRAFFICATION)
                     .setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(6).toInstant());
 
-            linked = linkedLicenseRepository.saveAll(licensesByName.values());
-        }
+            linkedLicenseRepository.saveAll(licensesByName.values());
+        });
+    }
 
-        return linked;
+    private int rand() {
+        int randomIndex = ThreadLocalRandom.current().nextInt(numbers.length);
+        return numbers[randomIndex];
     }
 
     public static BigDecimal generateRandomBigDecimal() {
