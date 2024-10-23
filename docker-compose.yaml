@@ -28,7 +28,7 @@ services:
       - mongo-network
 
   application:
-#    image: hackaton2024.azurecr.io/app/app
+#    image: hackaton2024.azurecr.io/app
     restart: always
     build:
       context: ./

@@ -42,7 +42,7 @@ jobs:
     name: Build Docker Image
     needs: [version]
     runs-on: ubuntu-latest
-    environment: "STAGE"
+    environment: "DEVELOPMENT"
     env:
       VERSION: ${{ needs.version.outputs.version }}
     steps:
@@ -75,3 +75,55 @@ jobs:
         run: |
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }}
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:latest
+
+  deploy-development:
+    name: Deploy to Remote Server
+    runs-on: ubuntu-latest
+    needs: [version, build]
+    environment: "DEVELOPMENT"
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH Client
+        run: sudo apt-get install -y openssh-client
+
+      - name: Define Variables
+        run: echo "VERSION=${{ env.VERSION }}"
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DOCKER_COMPOSE_PATH: /home/${{ secrets.SERVER_USER }}/docker-compose.yml
+          IMAGE: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+          REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+
+      - name: Add SSH Key
+        run: |
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+      - name: SSH into Server and Update Docker-Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
+            sed -i "s|image: ${{ env.IMAGE }}:.*|image: ${{ env.IMAGE }}:${{ env.VERSION }}|" $DOCKER_COMPOSE_PATH
+            cd $(dirname $DOCKER_COMPOSE_PATH)
+            echo $REGISTRY_TOKEN | docker login $REGISTRY_LOGIN_SERVER -u $REGISTRY_USERNAME --password-stdin
+            docker-compose pull
+            docker-compose up -d
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          IMAGE: ${{ env.IMAGE }}
+          DOCKER_COMPOSE_PATH: ${{ env.DOCKER_COMPOSE_PATH }}
+          REGISTRY_USERNAME: ${{ env.REGISTRY_USERNAME }}
+          REGISTRY_TOKEN: ${{ env.REGISTRY_TOKEN }}
+          REGISTRY_LOGIN_SERVER: ${{ env.REGISTRY_LOGIN_SERVER }}
+          SERVER_USER: ${{ env.SERVER_USER }}
+          SERVER_IP: ${{ env.SERVER_IP }}
+          SSH_PRIVATE_KEY: ${{ env.SSH_PRIVATE_KEY }}
