@@ -96,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
                             .token(token)
                             .build();
                     Mobile saved = mobileRepository.save(user);
-                    log.info("saved: {}", saved);
+                    log.debug("saved: {}", saved);
 
                     return new AuthResponseDto(token);
                 });

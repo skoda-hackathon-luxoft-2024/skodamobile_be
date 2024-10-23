@@ -79,15 +79,16 @@ public class LicensesServiceImpl implements LicensesService {
         User user = authService.getUserByToken(authorizationHeader);
 
         if (DeviceType.VEHICLE.equals(user.getDeviceType())) {
-            LinkedLicense linked = getLinkedLicense(user.asVehicle(), licenceId);
-            linked.addSubscriptionRenewalAttempt(Instant.now());
+            Vehicle vehicle = user.asVehicle();
+            LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
+            linked.incrementAndGet();
             linkedLicenseRepository.save(linked);
         }
         if (DeviceType.MOBILE.equals(user.getDeviceType())) {
             List<LinkedLicense> linkedLicenses = user.asMobile().getVehicles().stream()
                     .map(vehicle -> {
                         LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
-                        linked.addSubscriptionRenewalAttempt(Instant.now());
+                        linked.incrementAndGet();
                         return linked;
                     })
                     .toList();
@@ -100,8 +101,11 @@ public class LicensesServiceImpl implements LicensesService {
         Vehicle vehicle = authService.getUserByToken(authorizationHeader).asVehicle();
 
         LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
-        ArrayList<Instant> instants = new ArrayList<>(linked.getSubscriptionRenewalAttempts());
-        return new PersonalizedData(instants);
+
+        return PersonalizedData.builder()
+                .discountPercent(linked.discountPercent())
+                .subscriptionRenewalAttempts(linked.getSubscriptionRenewalAttempts())
+                .build();
     }
 
     private Set<LinkedLicense> linkedLicenses(String authorizationHeader) {

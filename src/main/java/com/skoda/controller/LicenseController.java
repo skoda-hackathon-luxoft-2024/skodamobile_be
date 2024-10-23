@@ -65,7 +65,7 @@ public class LicenseController {
         licensesService.postponeSubscriptionRenewal(authorizationHeader, licenceId);
     }
 
-    @Operation(summary = "Request Licence usage data. Get all Attempts of cancel/postpone subscription Renewal")
+    @Operation(summary = "Request Licence usage data. Get Attempts of cancel/postpone subscription Renewal")
     @GetMapping(value = "/postpone/{licenceId}", produces = APPLICATION_JSON_VALUE)
     public PersonalizedData getSubscriptionProlongation(
             @Parameter(description = "Token obtained during login")
