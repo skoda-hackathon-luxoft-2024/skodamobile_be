@@ -78,7 +78,7 @@ public class LicenseController {
 
     @Operation(summary = "Send prolongation request. Update Subscription for licenses")
     @PutMapping(value = "/{licenceId}", produces = APPLICATION_JSON_VALUE)
-    public LicenseRenewal updateSubscription(
+    public List<LicenseRenewal> updateSubscription(
             @Parameter(description = "Token obtained during login")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(description = "Licence ID")

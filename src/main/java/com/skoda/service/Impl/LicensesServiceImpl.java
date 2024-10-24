@@ -63,18 +63,37 @@ public class LicensesServiceImpl implements LicensesService {
     }
 
     @Override
-    public LicenseRenewal updateSubscription(String authorizationHeader, String licenceId) {
-        Vehicle vehicle = authService.getUserByToken(authorizationHeader).asVehicle();
+    public List<LicenseRenewal> updateSubscription(String authorizationHeader, String licenceId) {
+        User user = authService.getUserByToken(authorizationHeader);
 
-        LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
+        List<LinkedLicense> linkeds = new ArrayList<>();
 
-        linked.setSubscriptionRenewalAttempts(0);
-        linked.setPurchaseDate(Instant.now());
+        if (DeviceType.VEHICLE.equals(user.getDeviceType())) {
+            Vehicle vehicle = user.asVehicle();
+            LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
+            linked.setSubscriptionRenewalAttempts(0);
+            linked.setPurchaseDate(Instant.now());
+            LinkedLicense saved = linkedLicenseRepository.save(linked);
+            linkeds.add(saved);
+        }
+        if (DeviceType.MOBILE.equals(user.getDeviceType())) {
+            List<LinkedLicense> linkedLicenses = user.asMobile().getVehicles().stream()
+                    .map(vehicle -> {
+                        LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
+                        linked.setSubscriptionRenewalAttempts(0);
+                        linked.setPurchaseDate(Instant.now());
+                        return linked;
+                    })
+                    .toList();
+            List<LinkedLicense> saved = linkedLicenseRepository.saveAll(linkedLicenses);
+            linkeds.addAll(saved);
+        }
 
-        linkedLicenseRepository.save(linked);
-        log.info("[updateSubscription] vehicle: {} linked: {}", vehicle, linked);
+        log.info("[updateSubscription] vehicle: {} linked: {}", user, linkeds);
 
-        return new LicenseRenewal(linked.getId(), linked.getLicence().getName(), "License successfully Renewed", true);
+        return linkeds.stream()
+                .map(l -> new LicenseRenewal(l.getId(), l.getLicence().getName(), "License successfully Renewed", true))
+                .toList();
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface LicensesService {
 
     List<LinkedLicenceDto> getLinkedLicenceById(String authorizationHeader, String licenceId);
 
-    LicenseRenewal updateSubscription(String authorizationHeader, String licenceId);
+    List<LicenseRenewal> updateSubscription(String authorizationHeader, String licenceId);
 
     void postponeSubscriptionRenewal(String authorizationHeader, String licenceId);
 
