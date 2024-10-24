@@ -84,4 +84,12 @@ public class LicenseController {
             @PathVariable("licenceId") @ValidObjectId String licenceId) {
         return licensesService.updateSubscription(authorizationHeader, licenceId);
     }
+
+    @Operation(summary = "Test purpose only! Make 'Infotainment Online' Expired")
+    @PostMapping(value = "/test-expired")
+    public LinkedLicenceDto testExpired(
+            @Parameter(description = "Token obtained during login")
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return licensesService.testExpired(authorizationHeader);
+    }
 }

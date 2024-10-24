@@ -17,6 +17,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,6 +105,21 @@ public class LicensesServiceImpl implements LicensesService {
         LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
 
         return LicensesConverter.INSTANCE.toPersonalizedData(linked);
+    }
+
+    @Override
+    public LinkedLicenceDto testExpired(String authorizationHeader) {
+        Set<LinkedLicense> linked = linkedLicenses(authorizationHeader);
+
+        LinkedLicense found = linked.stream()
+                .filter(l -> l.getLicence().getName().equals("Infotainment Online"))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("LinkedLicense not found"));
+
+        found.setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(16).toInstant());
+
+        linkedLicenseRepository.save(found);
+        return LicensesConverter.INSTANCE.toDto(found);
     }
 
     private Set<LinkedLicense> linkedLicenses(String authorizationHeader) {

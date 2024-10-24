@@ -21,4 +21,6 @@ public interface LicensesService {
     void postponeSubscriptionRenewal(String authorizationHeader, String licenceId);
 
     PersonalizedData getSubscriptionRenewalAttempts(String authorizationHeader, String licenceId);
+
+    LinkedLicenceDto testExpired(String authorizationHeader);
 }
