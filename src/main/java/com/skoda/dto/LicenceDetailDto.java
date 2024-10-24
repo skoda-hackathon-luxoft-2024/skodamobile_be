@@ -29,4 +29,6 @@ public class LicenceDetailDto {
     private Integer subscriptionPeriod;
 
     private LicenceType licenceType;
+
+    private String currency;
 }

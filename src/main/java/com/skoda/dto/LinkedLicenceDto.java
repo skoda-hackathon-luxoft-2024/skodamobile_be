@@ -45,6 +45,8 @@ public class LinkedLicenceDto {
 
     private BigDecimal discountNetPrice;
 
+    private String currency;
+
     @JsonGetter
     public Instant nextPushNotification() {
         if (!SubscriptionStatus.ACTIVE.equals(status())) {

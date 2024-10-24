@@ -23,6 +23,7 @@ import java.util.List;
 public interface LicensesConverter {
     LicensesConverter INSTANCE = Mappers.getMapper(LicensesConverter.class);
 
+    @Mapping(target = "currency", constant = "Kc")
     LicenceDetailDto toDto(LicenseDetail dao);
 
     List<LicenceDetailDto> toLicenceDetailList(Collection<LicenseDetail> daos);
@@ -40,6 +41,7 @@ public interface LicensesConverter {
     @Mapping(target = "discountPercent", source = ".", qualifiedByName = "discountPercent")
     @Mapping(target = "vat", source = ".", qualifiedByName = "calculateVat")
     @Mapping(target = "discountNetPrice", source = ".", qualifiedByName = "discountNetPrice")
+    @Mapping(target = "currency", constant = "Kc")
     LinkedLicenceDto toDto(LinkedLicense dao);
 
     @Mapping(target = "licence", source = "licence.id")
