@@ -36,9 +36,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/health-check").permitAll()
                         .requestMatchers("/api/ivi/login/**").permitAll()
-                        .requestMatchers("/api/ivi/validate/**").permitAll()
+                        .requestMatchers("/api/ivi/validate-token/**").permitAll()
                         .requestMatchers("/api/mobile/login").permitAll()
-                        .requestMatchers("/api/mobile/validate/**").permitAll()
+                        .requestMatchers("/api/mobile/validate-token/**").permitAll()
                         .requestMatchers("**/swagger-ui/**", "**/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

@@ -60,7 +60,7 @@ public class VehicleController {
     }
 
     @Operation(summary = "Validate token obtained during login")
-    @GetMapping(value = "/validate/{token}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/validate-token/{token}", produces = APPLICATION_JSON_VALUE)
     public ValidationTokenResponseDto validateToken(
             @Parameter(description = "Token obtained during login")
             @PathVariable("token") @NotBlank String token) {
