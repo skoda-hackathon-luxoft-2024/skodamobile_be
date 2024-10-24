@@ -93,7 +93,7 @@ public class LicenseController {
         return licensesService.testExpired(authorizationHeader);
     }
 
-    @Operation(summary = "Test purpose only! Make 'Infotainment Online' Expired")
+    @Operation(summary = "Test purpose only! Make subscriptions with {licenceId} Expired")
     @PostMapping(value = "/test-expired/{licenceId}")
     public List<LinkedLicenceDto> testExpired(
             @Parameter(description = "Token obtained during login")
