@@ -105,6 +105,7 @@ jobs:
             sed -i "s|image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:.*|image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }}|" /home/${{ secrets.SERVER_USER }}/docker-compose.yml
             cd /home/${{ secrets.SERVER_USER }}
             echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_LOGIN_SERVER }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+            docker-compose down -v
             docker-compose pull
             docker-compose up -d
           EOF
@@ -138,6 +139,7 @@ jobs:
             sed -i "s|image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:.*|image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.ACR_IMAGE_NAME }}:${{ env.VERSION }}|" /home/${{ secrets.SERVER_USER }}/docker-compose.yml
             cd /home/${{ secrets.SERVER_USER }}
             echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_LOGIN_SERVER }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+            docker-compose down -v
             docker-compose pull
             docker-compose up -d
           EOF
