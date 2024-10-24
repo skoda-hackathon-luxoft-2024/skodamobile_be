@@ -132,6 +132,7 @@ public class LicensesServiceImpl implements LicensesService {
     }
 
     @Override
+    @Deprecated
     public List<LicenseRenewal> deprecatedUpdateSubscription(String authorizationHeader, String licenceId) {
         User user = authService.getUserByToken(authorizationHeader);
 

@@ -16,6 +16,7 @@ public interface LicensesService {
 
     List<LinkedLicenceDto> getLinkedLicenceById(String authorizationHeader, String licenceId);
 
+    @Deprecated
     List<LicenseRenewal> deprecatedUpdateSubscription(String authorizationHeader, String licenceId);
 
     void postponeSubscriptionRenewal(String authorizationHeader, String licenceId);

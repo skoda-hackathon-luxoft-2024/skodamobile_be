@@ -77,6 +77,7 @@ public class LicenseController {
 
     @Operation(summary = "DEPRECATED!!! Use /ivi/prolong/{licenceId} or /mobile/prolong/{licenceId}")
     @PutMapping(value = "/{licenceId}", produces = APPLICATION_JSON_VALUE)
+    @Deprecated
     public List<LicenseRenewal> updateSubscription(
             @Parameter(description = "Token obtained during login")
             @RequestHeader("Authorization") String authorizationHeader,
