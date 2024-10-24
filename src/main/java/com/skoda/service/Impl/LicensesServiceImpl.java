@@ -68,6 +68,7 @@ public class LicensesServiceImpl implements LicensesService {
 
         LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
 
+        linked.setSubscriptionRenewalAttempts(0);
         linked.setPurchaseDate(Instant.now());
 
         linkedLicenseRepository.save(linked);
