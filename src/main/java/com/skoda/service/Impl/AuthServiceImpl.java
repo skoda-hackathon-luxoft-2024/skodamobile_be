@@ -44,7 +44,10 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = getAuthentication(new LoginDto(vin, vin));
 
         return vehicleRepository.findByUsername(vin)
-                .map(user -> new AuthResponseDto(user.getToken()))
+                .map(user -> {
+                    log.info("[loginVehicle] exist {}", user);
+                    return new AuthResponseDto(user.getToken());
+                })
                 .orElseGet(() -> {
                     String token = jwtTokenProvider.generateToken(authentication);
 
@@ -70,9 +73,9 @@ public class AuthServiceImpl implements AuthService {
                     List<LinkedLicense> linkedLicenses = linkedLicenseRepository.saveAll(linked);
 
                     savedUser.extendLicenses(linkedLicenses);
-                    vehicleRepository.save(savedUser);
+                    Vehicle saved = vehicleRepository.save(savedUser);
 
-                    log.debug("saved {}", user);
+                    log.info("[loginVehicle] created {}", saved);
 
                     return new AuthResponseDto(token);
                 });
@@ -85,6 +88,7 @@ public class AuthServiceImpl implements AuthService {
         return mobileRepository.findByUsername(loginDto.getUsername())
                 .map(user -> {
                     if (user.getPassword().equals(loginDto.getPassword())) {
+                        log.info("[loginMobile] exist {}", user);
                         return new AuthResponseDto(user.getToken());
                     }
                     throw new BadCredentialsException("Wrong password");
@@ -96,7 +100,8 @@ public class AuthServiceImpl implements AuthService {
                             .token(token)
                             .build();
                     Mobile saved = mobileRepository.save(user);
-                    log.debug("saved: {}", saved);
+
+                    log.info("[loginMobile] created {}", saved);
 
                     return new AuthResponseDto(token);
                 });
@@ -117,7 +122,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User getUserByToken(String authorizationHeader) {
         String username = jwtTokenProvider.getUsername(authorizationHeader);
-        return getUserByUserName(username);
+        User user = getUserByUserName(username);
+        log.info("[getUserByToken] {}", user);
+        return user;
     }
 
     @Override
