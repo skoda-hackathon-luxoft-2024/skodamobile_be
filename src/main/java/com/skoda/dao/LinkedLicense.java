@@ -48,6 +48,10 @@ public class LinkedLicense {
         return subscriptionRenewalAttempts.get();
     }
 
+    public void setSubscriptionRenewalAttempts(int value) {
+        subscriptionRenewalAttempts.set(value);
+    }
+
     public String getId() {
         return licence.getId().toHexString();
     }

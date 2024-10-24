@@ -8,6 +8,7 @@ import com.skoda.service.LicensesService;
 import com.skoda.validation.ValidObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -91,5 +92,14 @@ public class LicenseController {
             @Parameter(description = "Token obtained during login")
             @RequestHeader("Authorization") String authorizationHeader) {
         return licensesService.testExpired(authorizationHeader);
+    }
+
+    @Operation(summary = "Test purpose only! Make discount/SpecialOffer for 'Infotainment Online'")
+    @PostMapping(value = "/test-discount")
+    public LinkedLicenceDto testSpecialOffer(
+            @Parameter(description = "Token obtained during login")
+            @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        return licensesService.testSpecialOffer(authorizationHeader);
     }
 }

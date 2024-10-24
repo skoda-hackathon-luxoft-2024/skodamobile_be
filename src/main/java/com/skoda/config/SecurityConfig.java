@@ -34,6 +34,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/api/health-check").permitAll()
                         .requestMatchers("/api/ivi/login/**").permitAll()
                         .requestMatchers("/api/ivi/validate-token/**").permitAll()
                         .requestMatchers("/api/mobile/login").permitAll()

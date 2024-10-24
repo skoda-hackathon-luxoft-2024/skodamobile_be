@@ -122,6 +122,21 @@ public class LicensesServiceImpl implements LicensesService {
         return LicensesConverter.INSTANCE.toDto(found);
     }
 
+    @Override
+    public LinkedLicenceDto testSpecialOffer(String authorizationHeader) {
+        Set<LinkedLicense> linked = linkedLicenses(authorizationHeader);
+
+        LinkedLicense found = linked.stream()
+                .filter(l -> l.getLicence().getName().equals("Infotainment Online"))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("LinkedLicense not found"));
+
+        found.setSubscriptionRenewalAttempts(51);
+
+        linkedLicenseRepository.save(found);
+        return LicensesConverter.INSTANCE.toDto(found);
+    }
+
     private Set<LinkedLicense> linkedLicenses(String authorizationHeader) {
         User user = authService.getUserByToken(authorizationHeader);
 
