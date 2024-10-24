@@ -131,13 +131,24 @@ public class LicensesServiceImpl implements LicensesService {
     public List<LinkedLicenceDto> testExpired(String authorizationHeader) {
         Set<LinkedLicense> linked = linkedLicenses(authorizationHeader);
 
+        linked.forEach(l -> l.setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(16).toInstant()));
+
+        List<LinkedLicense> saved = linkedLicenseRepository.saveAll(linked);
+        return LicensesConverter.INSTANCE.toLinkedLicenceDtoList(saved);
+    }
+
+    @Override
+    public List<LinkedLicenceDto> testExpired(String authorizationHeader, String licenceId) {
+        Set<LinkedLicense> linked = linkedLicenses(authorizationHeader);
+
+        ObjectId key = new ObjectId(licenceId);
+
         List<LinkedLicense> founds = linked.stream()
-                .filter(l -> l.getLicence().getName().equals("Infotainment Online"))
+                .filter(l -> l.getLicence().getId().equals(key))
                 .peek(l -> l.setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(16).toInstant()))
                 .toList();
-
-        linkedLicenseRepository.saveAll(founds);
-        return LicensesConverter.INSTANCE.toLinkedLicenceDtoList(founds);
+        List<LinkedLicense> saved = linkedLicenseRepository.saveAll(founds);
+        return LicensesConverter.INSTANCE.toLinkedLicenceDtoList(saved);
     }
 
     @Override

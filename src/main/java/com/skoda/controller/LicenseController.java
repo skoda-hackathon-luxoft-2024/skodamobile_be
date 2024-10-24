@@ -8,7 +8,6 @@ import com.skoda.service.LicensesService;
 import com.skoda.validation.ValidObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -86,7 +85,7 @@ public class LicenseController {
         return licensesService.updateSubscription(authorizationHeader, licenceId);
     }
 
-    @Operation(summary = "Test purpose only! Make 'Infotainment Online' Expired")
+    @Operation(summary = "Test purpose only! Make All subscriptions Expired")
     @PostMapping(value = "/test-expired")
     public List<LinkedLicenceDto> testExpired(
             @Parameter(description = "Token obtained during login")
@@ -94,12 +93,21 @@ public class LicenseController {
         return licensesService.testExpired(authorizationHeader);
     }
 
+    @Operation(summary = "Test purpose only! Make 'Infotainment Online' Expired")
+    @PostMapping(value = "/test-expired/{licenceId}")
+    public List<LinkedLicenceDto> testExpired(
+            @Parameter(description = "Token obtained during login")
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Parameter(description = "Licence ID")
+            @PathVariable("licenceId") @ValidObjectId String licenceId) {
+        return licensesService.testExpired(authorizationHeader, licenceId);
+    }
+
     @Operation(summary = "Test purpose only! Make discount/SpecialOffer for 'Infotainment Online'")
     @PostMapping(value = "/test-discount")
     public List<LinkedLicenceDto> testSpecialOffer(
             @Parameter(description = "Token obtained during login")
-            @RequestHeader("Authorization") String authorizationHeader
-    ) {
+            @RequestHeader("Authorization") String authorizationHeader) {
         return licensesService.testSpecialOffer(authorizationHeader);
     }
 }

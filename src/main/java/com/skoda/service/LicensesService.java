@@ -22,7 +22,10 @@ public interface LicensesService {
 
     PersonalizedData getSubscriptionRenewalAttempts(String authorizationHeader, String licenceId);
 
-    List<LinkedLicenceDto>  testExpired(String authorizationHeader);
+    List<LinkedLicenceDto> testExpired(String authorizationHeader);
 
-    List<LinkedLicenceDto>  testSpecialOffer(String authorizationHeader);
+    List<LinkedLicenceDto> testExpired(String authorizationHeader, String licenceId);
+
+    List<LinkedLicenceDto> testSpecialOffer(String authorizationHeader);
+
 }
