@@ -70,6 +70,7 @@ public class LicensesServiceImpl implements LicensesService {
         linked.setPurchaseDate(Instant.now());
 
         linkedLicenseRepository.save(linked);
+        log.info("vehicle: {} linked: {}", vehicle, linked);
 
         return new LicenseRenewal(linked.getId(), linked.getLicence().getName(), "License successfully Renewed", true);
     }
