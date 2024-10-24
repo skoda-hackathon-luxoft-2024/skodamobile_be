@@ -108,33 +108,30 @@ public class LicensesServiceImpl implements LicensesService {
     }
 
     @Override
-    public LinkedLicenceDto testExpired(String authorizationHeader) {
+    public List<LinkedLicenceDto> testExpired(String authorizationHeader) {
         Set<LinkedLicense> linked = linkedLicenses(authorizationHeader);
 
-        LinkedLicense found = linked.stream()
+        List<LinkedLicense> founds = linked.stream()
                 .filter(l -> l.getLicence().getName().equals("Infotainment Online"))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("LinkedLicense not found"));
+                .peek(l -> l.setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(16).toInstant()))
+                .toList();
 
-        found.setPurchaseDate(Instant.now().atZone(ZoneId.systemDefault()).minusMonths(16).toInstant());
-
-        linkedLicenseRepository.save(found);
-        return LicensesConverter.INSTANCE.toDto(found);
+        linkedLicenseRepository.saveAll(founds);
+        return LicensesConverter.INSTANCE.toLinkedLicenceDtoList(founds);
     }
 
     @Override
-    public LinkedLicenceDto testSpecialOffer(String authorizationHeader) {
+    public List<LinkedLicenceDto> testSpecialOffer(String authorizationHeader) {
         Set<LinkedLicense> linked = linkedLicenses(authorizationHeader);
 
-        LinkedLicense found = linked.stream()
+        List<LinkedLicense> founds = linked.stream()
                 .filter(l -> l.getLicence().getName().equals("Infotainment Online"))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("LinkedLicense not found"));
+                .peek(l -> l.setSubscriptionRenewalAttempts(51))
+                .toList();
 
-        found.setSubscriptionRenewalAttempts(51);
 
-        linkedLicenseRepository.save(found);
-        return LicensesConverter.INSTANCE.toDto(found);
+        linkedLicenseRepository.saveAll(founds);
+        return LicensesConverter.INSTANCE.toLinkedLicenceDtoList(founds);
     }
 
     private Set<LinkedLicense> linkedLicenses(String authorizationHeader) {

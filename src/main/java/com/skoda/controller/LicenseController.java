@@ -88,7 +88,7 @@ public class LicenseController {
 
     @Operation(summary = "Test purpose only! Make 'Infotainment Online' Expired")
     @PostMapping(value = "/test-expired")
-    public LinkedLicenceDto testExpired(
+    public List<LinkedLicenceDto> testExpired(
             @Parameter(description = "Token obtained during login")
             @RequestHeader("Authorization") String authorizationHeader) {
         return licensesService.testExpired(authorizationHeader);
@@ -96,7 +96,7 @@ public class LicenseController {
 
     @Operation(summary = "Test purpose only! Make discount/SpecialOffer for 'Infotainment Online'")
     @PostMapping(value = "/test-discount")
-    public LinkedLicenceDto testSpecialOffer(
+    public List<LinkedLicenceDto> testSpecialOffer(
             @Parameter(description = "Token obtained during login")
             @RequestHeader("Authorization") String authorizationHeader
     ) {
