@@ -102,10 +102,7 @@ public class LicensesServiceImpl implements LicensesService {
 
         LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
 
-        return PersonalizedData.builder()
-                .discountPercent(linked.discountPercent())
-                .subscriptionRenewalAttempts(linked.getSubscriptionRenewalAttempts())
-                .build();
+        return LicensesConverter.INSTANCE.toPersonalizedData(linked);
     }
 
     private Set<LinkedLicense> linkedLicenses(String authorizationHeader) {

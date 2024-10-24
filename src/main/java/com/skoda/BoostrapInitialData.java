@@ -50,7 +50,7 @@ public class BoostrapInitialData implements CommandLineRunner {
     private static final String REMOTE_ACCESS = "Remote Access";
     private static final String TRAFFICATION = "Traffication";
 
-    private static final int[] numbers = {0, 11, 51, 101};
+    private static final int[] numbers = {0, 10, 50, 100};
 
     @Override
     public void run(String... args) {
@@ -85,7 +85,7 @@ public class BoostrapInitialData implements CommandLineRunner {
 
     private void dummySpecialOffer() {
         linkedLicenseRepository.findAll().stream()
-                .filter(linked -> linked.discountPercent() == 0)
+                .filter(linked -> linked.getSubscriptionRenewalAttempts() == 0)
                 .forEach(linked -> IntStream.range(0, rand()).forEach(i -> licensesService
                         .postponeSubscriptionRenewal("Bearer " + linked.getVehicle().getToken(), linked.getLicence().getId().toHexString())));
     }
@@ -103,7 +103,7 @@ public class BoostrapInitialData implements CommandLineRunner {
                             .description("The Traffication app provides drivers with real-time updates on traffic conditions to help them avoid congestion and potentially dangerous road situations. The system alerts users to road hazards, accidents, or construction, ensuring a safer and more efficient driving experience.")
                             .summary("Real-time traffic updates and road hazard alerts for a safer driving experience.")
                             .impactOfExpiredLicense("Without an active license for Traffication, you will lose access to important traffic alerts and road hazard notifications, potentially increasing travel time and exposing you to unsafe conditions.")
-                            .price(generateRandomBigDecimal())
+                            .netPrice(generateRandomBigDecimal())
                             .subscriptionPeriod(12)
                             .licenceType(LicenceType.PAID)
                             .build(),
@@ -112,7 +112,7 @@ public class BoostrapInitialData implements CommandLineRunner {
                             .description("Remote Access allows Skoda owners to control certain aspects of their vehicle from their smartphone. Users can remotely check vehicle status (fuel levels, battery charge), lock/unlock doors, turn on the air conditioning, and track the car’s location, providing convenience and peace of mind.")
                             .summary("Remote control of vehicle status, doors, and location from a smartphone.")
                             .impactOfExpiredLicense("If the license expires, you will no longer be able to remotely monitor your vehicle’s status or control key functions, leading to decreased convenience and potential security concerns.")
-                            .price(generateRandomBigDecimal())
+                            .netPrice(generateRandomBigDecimal())
                             .subscriptionPeriod(12)
                             .licenceType(LicenceType.PAID)
                             .build(),
@@ -121,7 +121,7 @@ public class BoostrapInitialData implements CommandLineRunner {
                             .description("Infotainment Online provides access to a variety of online services directly through the vehicle’s multimedia system. Drivers can get real-time information on weather, news, parking availability, traffic conditions, and access various entertainment services during trips.")
                             .summary("Real-time information and entertainment services integrated with the car’s multimedia system.")
                             .impactOfExpiredLicense("Without an active subscription, you will lose access to essential real-time information such as traffic updates and parking availability, which could result in longer travel times or difficulties finding services en route.")
-                            .price(generateRandomBigDecimal())
+                            .netPrice(generateRandomBigDecimal())
                             .subscriptionPeriod(12)
                             .licenceType(LicenceType.PAID)
                             .build());

@@ -27,7 +27,11 @@ public class LinkedLicenceDto {
 
     private String impactOfExpiredLicense;
 
-    private BigDecimal fullPrice;
+    private BigDecimal netPrice;
+
+    private BigDecimal vatPercent;
+
+    private BigDecimal vat;
 
     private String vin;
 
@@ -39,19 +43,16 @@ public class LinkedLicenceDto {
 
     private int discountPercent;
 
-    @JsonGetter
-    public BigDecimal discountPrice() {
-        BigDecimal percentage = BigDecimal.valueOf(discountPercent).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        BigDecimal amountToSubtract = fullPrice.multiply(percentage);
-        BigDecimal result = fullPrice.subtract(amountToSubtract);
-        return result.setScale(0, RoundingMode.HALF_UP);
-    }
+    private BigDecimal discountNetPrice;
 
     @JsonGetter
     public Instant nextPushNotification() {
-        ZonedDateTime zonedDateTime = Instant.now().atZone(ZoneId.systemDefault());
-        ZonedDateTime newDateTime = zonedDateTime.plusSeconds(30);
-        return newDateTime.toInstant();
+        if (!SubscriptionStatus.ACTIVE.equals(status())) {
+            ZonedDateTime zonedDateTime = Instant.now().atZone(ZoneId.systemDefault());
+            ZonedDateTime newDateTime = zonedDateTime.plusSeconds(30);
+            return newDateTime.toInstant();
+        }
+        return null;
     }
 
     @JsonGetter

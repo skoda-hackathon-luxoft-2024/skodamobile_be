@@ -22,7 +22,9 @@ public class LicenceDetailDto {
 
     private String impactOfExpiredLicense;
 
-    private BigDecimal price;
+    private BigDecimal netPrice;
+
+    private BigDecimal vatPercent;
 
     private Integer subscriptionPeriod;
 

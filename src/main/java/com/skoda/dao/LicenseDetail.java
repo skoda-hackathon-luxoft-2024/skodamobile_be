@@ -36,7 +36,11 @@ public class LicenseDetail {
     private String impactOfExpiredLicense;
 
     @NonNull
-    private BigDecimal price;
+    private BigDecimal netPrice;
+
+    @NonNull
+    @Builder.Default
+    private Integer vatPercent = 21;
 
     @NonNull
     private Integer subscriptionPeriod;
