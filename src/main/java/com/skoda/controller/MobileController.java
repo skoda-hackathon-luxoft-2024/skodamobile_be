@@ -1,13 +1,16 @@
 package com.skoda.controller;
 
 
+import com.skoda.dto.LicenseRenewal;
 import com.skoda.dto.auth.AuthResponseDto;
 import com.skoda.dto.auth.DeviceType;
 import com.skoda.dto.auth.LoginDto;
 import com.skoda.dto.auth.ValidationTokenResponseDto;
 import com.skoda.dto.pairing.PairedAccountsDto;
 import com.skoda.service.AuthService;
+import com.skoda.service.LicensesService;
 import com.skoda.service.ParingService;
+import com.skoda.validation.ValidObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -27,6 +30,7 @@ public class MobileController {
 
     private final AuthService authService;
     private final ParingService paringService;
+    private final LicensesService licensesService;
 
     @Operation(summary = "Login to obtain an authentication token")
     @PostMapping("/login")
@@ -70,6 +74,18 @@ public class MobileController {
             @Parameter(description = "Token obtained during login")
             @PathVariable("token") @NotBlank String token) {
         return authService.validateToken(token, DeviceType.MOBILE);
+    }
+
+    @Operation(summary = "Send prolongation request. Update Subscription for licenses")
+    @PutMapping(value = "/prolong/{licenceId}", produces = APPLICATION_JSON_VALUE)
+    public LicenseRenewal updateSubscription(
+            @Parameter(description = "Token obtained during login")
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Parameter(description = "Licence ID")
+            @PathVariable("licenceId") @ValidObjectId String licenceId,
+            @Parameter(description = "Licence ID")
+            @RequestParam("vin") @NotBlank String vin) {
+        return licensesService.updateSubscriptionFromMobile(authorizationHeader, licenceId, vin);
     }
 }
 

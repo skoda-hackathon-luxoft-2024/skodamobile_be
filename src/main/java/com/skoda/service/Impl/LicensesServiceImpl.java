@@ -63,40 +63,6 @@ public class LicensesServiceImpl implements LicensesService {
     }
 
     @Override
-    public List<LicenseRenewal> updateSubscription(String authorizationHeader, String licenceId) {
-        User user = authService.getUserByToken(authorizationHeader);
-
-        List<LinkedLicense> linkeds = new ArrayList<>();
-
-        if (DeviceType.VEHICLE.equals(user.getDeviceType())) {
-            Vehicle vehicle = user.asVehicle();
-            LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
-            linked.setSubscriptionRenewalAttempts(0);
-            linked.setPurchaseDate(Instant.now());
-            LinkedLicense saved = linkedLicenseRepository.save(linked);
-            linkeds.add(saved);
-        }
-        if (DeviceType.MOBILE.equals(user.getDeviceType())) {
-            List<LinkedLicense> linkedLicenses = user.asMobile().getVehicles().stream()
-                    .map(vehicle -> {
-                        LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
-                        linked.setSubscriptionRenewalAttempts(0);
-                        linked.setPurchaseDate(Instant.now());
-                        return linked;
-                    })
-                    .toList();
-            List<LinkedLicense> saved = linkedLicenseRepository.saveAll(linkedLicenses);
-            linkeds.addAll(saved);
-        }
-
-        log.info("[updateSubscription] vehicle: {} linked: {}", user, linkeds);
-
-        return linkeds.stream()
-                .map(l -> new LicenseRenewal(l.getId(), l.getLicence().getName(), "License successfully Renewed", true))
-                .toList();
-    }
-
-    @Override
     public void postponeSubscriptionRenewal(String authorizationHeader, String licenceId) {
         User user = authService.getUserByToken(authorizationHeader);
 
@@ -165,6 +131,59 @@ public class LicensesServiceImpl implements LicensesService {
         return LicensesConverter.INSTANCE.toLinkedLicenceDtoList(founds);
     }
 
+    @Override
+    public List<LicenseRenewal> deprecatedUpdateSubscription(String authorizationHeader, String licenceId) {
+        User user = authService.getUserByToken(authorizationHeader);
+
+        List<LinkedLicense> linkeds = new ArrayList<>();
+
+        if (DeviceType.VEHICLE.equals(user.getDeviceType())) {
+            Vehicle vehicle = user.asVehicle();
+            LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
+            linked.setSubscriptionRenewalAttempts(0);
+            linked.setPurchaseDate(Instant.now());
+            LinkedLicense saved = linkedLicenseRepository.save(linked);
+            linkeds.add(saved);
+        }
+        if (DeviceType.MOBILE.equals(user.getDeviceType())) {
+            List<LinkedLicense> linkedLicenses = user.asMobile().getVehicles().stream()
+                    .map(vehicle -> {
+                        LinkedLicense linked = getLinkedLicense(vehicle, licenceId);
+                        linked.setSubscriptionRenewalAttempts(0);
+                        linked.setPurchaseDate(Instant.now());
+                        return linked;
+                    })
+                    .toList();
+            List<LinkedLicense> saved = linkedLicenseRepository.saveAll(linkedLicenses);
+            linkeds.addAll(saved);
+        }
+
+        log.info("[updateSubscription] vehicle: {} linked: {}", user, linkeds);
+
+        return linkeds.stream()
+                .map(l -> new LicenseRenewal(l.getId(), l.getLicence().getName(), "License successfully Renewed", true))
+                .toList();
+    }
+
+    @Override
+    public LicenseRenewal updateSubscriptionFromMobile(String authorizationHeader, String licenceId, String vin) {
+        Mobile user = authService.getUserByToken(authorizationHeader).asMobile();
+        Vehicle vehicle = user.getVehicles().stream()
+                .filter(m -> m.getVin().equals(vin))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Vehicle not linked to account"));
+
+        return updateSubscription(vehicle, licenceId);
+    }
+
+    @Override
+    public LicenseRenewal updateSubscriptionFromVehicle(String authorizationHeader, String licenceId) {
+        Vehicle vehicle = authService.getUserByToken(authorizationHeader).asVehicle();
+
+        return updateSubscription(vehicle, licenceId);
+    }
+
+
     private Set<LinkedLicense> linkedLicenses(String authorizationHeader) {
         User user = authService.getUserByToken(authorizationHeader);
 
@@ -191,5 +210,15 @@ public class LicensesServiceImpl implements LicensesService {
                 .filter(e -> e.getLicence().getId().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Licence not found"));
+    }
+
+    private LicenseRenewal updateSubscription(Vehicle user, String licenceId) {
+        LinkedLicense linked = getLinkedLicense(user, licenceId);
+
+        linked.setSubscriptionRenewalAttempts(0);
+        linked.setPurchaseDate(Instant.now());
+        LinkedLicense saved = linkedLicenseRepository.save(linked);
+
+        return new LicenseRenewal(saved.getId(), saved.getLicence().getName(), "License successfully Renewed", true);
     }
 }

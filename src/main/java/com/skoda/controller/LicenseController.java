@@ -75,14 +75,14 @@ public class LicenseController {
         return licensesService.getSubscriptionRenewalAttempts(authorizationHeader, licenceId);
     }
 
-    @Operation(summary = "Send prolongation request. Update Subscription for licenses")
+    @Operation(summary = "DEPRECATED!!! Use /ivi/prolong/{licenceId} or /mobile/prolong/{licenceId}")
     @PutMapping(value = "/{licenceId}", produces = APPLICATION_JSON_VALUE)
     public List<LicenseRenewal> updateSubscription(
             @Parameter(description = "Token obtained during login")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(description = "Licence ID")
             @PathVariable("licenceId") @ValidObjectId String licenceId) {
-        return licensesService.updateSubscription(authorizationHeader, licenceId);
+        return licensesService.deprecatedUpdateSubscription(authorizationHeader, licenceId);
     }
 
     @Operation(summary = "Test purpose only! Make All subscriptions Expired")
